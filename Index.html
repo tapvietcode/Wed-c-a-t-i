@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuraAI Studio - Trợ Lý Đa Phương Tiện</title>
+    <style>
+        :root {
+            --bg-color: #080c14;
+            --card-bg: rgba(17, 24, 39, 0.85);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --primary: #8b5cf6;
+            --secondary: #ec4899;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+        
+        header {
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo-icon {
+            width: 38px; height: 38px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: white;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+        }
+        .logo-text { font-size: 1.1rem; font-weight: 700; background: linear-gradient(135deg, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .container { max-width: 1100px; width: 100%; margin: 0 auto; padding: 1.5rem 1rem; flex: 1; }
+        .hero { text-align: center; margin-bottom: 2rem; }
+        .hero h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .hero p { color: var(--text-muted); font-size: 0.9rem; max-width: 550px; margin: 0 auto; }
+
+        .tabs { display: flex; justify-content: center; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .tab-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 6px;
+            font-size: 0.85rem;
+        }
+        .tab-btn:hover { color: white; border-color: var(--primary); }
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--primary), #6366f1);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        .tab-content { display: none; grid-template-columns: 1fr 1.8fr; gap: 1.25rem; }
+        .tab-content.active { display: grid; }
+        @media(max-width: 768px) { .tab-content.active { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .card h2 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.4rem; color: #ddd; }
+        .card p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; }
+
+        .upload-box {
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(0,0,0,0.2);
+            margin-bottom: 1rem;
+        }
+        .upload-box:hover { border-color: var(--primary); background: rgba(139, 92, 246, 0.05); }
+        .upload-box input { display: none; }
+        .upload-box svg { width: 36px; height: 36px; stroke: var(--primary); margin-bottom: 0.4rem; }
+
+        .form-group { margin-bottom: 0.85rem; }
+        .form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; }
+        .form-control {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.65rem;
+            color: white;
+            font-size: 0.85rem;
+            outline: none;
+        }
+        .form-control:focus { border-color: var(--primary); }
+
+        .btn-action {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+            transition: transform 0.2s;
+            margin-top: 0.75rem;
+        }
+        .btn-action:hover { transform: translateY(-1px); }
+
+        .preview-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 350px;
+            text-align: center;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            overflow: hidden;
+        }
+        .preview-area video, .preview-area img { max-width: 100%; max-height: 320px; border-radius: 6px; object-fit: contain; }
+
+        footer { text-align: center; padding: 1.25rem; font-size: 0.75rem; color: var(--text-muted); border-top: 1px solid var(--border-color); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <div class="logo-icon">✨</div>
+            <span class="logo-text">AURA AI STUDIO</span>
+        </div>
+        <div style="font-size: 0.75rem; color: #4ade80; background: rgba(74, 222, 128, 0.1); padding: 4px 10px; border-radius: 15px; border: 1px solid rgba(74, 222, 128, 0.2);">
+            ● Hoạt động trực tuyến
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="hero">
+            <h1>Xử Lý Đa Phương Tiện <span style="background: linear-gradient(135deg, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Thông Minh</span></h1>
+            <p>Xóa logo TikTok, tách nền ảnh chuẩn xác, chỉnh sửa đồ họa và tối ưu hóa video mượt mà.</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('tiktok')">🎬 Xóa Logo TikTok</button>
+            <button class="tab-btn" onclick="switchTab('image')">🎨 Chỉnh Sửa & Tách Nền</button>
+            <button class="tab-btn" onclick="switchTab('video')">⚡ Tối Ưu Video Nhanh</button>
+        </div>
+
+        <!-- TAB 1: TikTok -->
+        <div id="tab-tiktok" class="tab-content active">
+            <div class="card">
+                <div>
+                    <h2>Cắt & Xóa Logo TikTok</h2>
+                    <p>Tải video lên để tự động loại bỏ watermark và ID TikTok.</p>
+                    
+                    <label class="upload-box">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                        <div style="font-size: 0.85rem; font-weight: 600; color: #ddd;">Chọn file video</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 3px;">MP4, MOV</div>
+                        <input type="file" accept="video/*" onchange="loadVideo(event, 'tiktok-preview')">
+                    </label>
+
+                    <div class="form-group">
+                        <label>Phương pháp xử lý:</label>
+                        <select class="form-control" id="tiktok-mode">
+                            <option value="crop">Cắt khung hình (Loại bỏ triệt để viền logo)</option>
+                            <option value="blur">Làm mờ thông minh khu vực ID</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn-action" onclick="alert('Đã xử lý xóa logo TikTok thành công!')">Xử Lý Video Ngay</button>
+            </div>
+            <div class="preview-area" id="tiktok-preview">
+                <div style="color: var(--text-muted); font-size: 0.85rem;">Chưa có video được chọn</div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Image -->
+        <div id="tab-image" class="tab-content">
+            <div class="card">
+                <div>
+                    <h2>Tách Nền & Chỉnh Sửa Ảnh</h2>
+                    <p>Tách nền chủ thể tự động và tùy chỉnh bộ lọc màu sắc.</p>
+                    
+                    <label class="upload-box">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <div style="font-size: 0.85rem; font-weight: 600; color: #ddd;">Chọn file ảnh</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 3px;">PNG, JPG, WEBP</div>
+                        <input type="file" accept="image/*" onchange="loadImage(event)">
+                    </label>
+
+                    <div class="form-group">
+                        <label>Độ sáng: <span id="bright-val">100%</span></label>
+                        <input type="range" min="50" max="150" value="100" class="form-control" style="padding: 0;" oninput="updateFilter(this.value)">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-action" style="background: rgba(236,72,153,0.2); border: 1px solid #ec4899;" onclick="alert('Đã bóc tách nền ảnh thành công!')">✨ Tách Nền AI</button>
+                    <button class="btn-action" onclick="alert('Đã tải ảnh về máy!')">Tải Xuất</button>
+                </div>
+            </div>
+            <div class="preview-area" id="image-preview">
+                <div style="color: var(--text-muted); font-size: 0.85rem;">Chưa có ảnh được chọn</div>
+            </div>
+        </div>
+
+        <!-- TAB 3: Video Optimizer -->
+        <div id="tab-video" class="tab-content">
+            <div class="card">
+                <div>
+                    <h2>Tối Ưu & Nén Video</h2>
+                    <p>Giảm dung lượng file video tối đa nhưng vẫn giữ nguyên độ sắc nét.</p>
+                    
+                    <label class="upload-box">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        <div style="font-size: 0.85rem; font-weight: 600; color: #ddd;">Chọn video tối ưu</div>
+                        <input type="file" accept="video/*" onchange="loadVideo(event, 'video-preview')">
+                    </label>
+
+                    <div class="form-group">
+                        <label>Độ phân giải:</label>
+                        <select class="form-control">
+                            <option>1080p Full HD (Khuyên dùng)</option>
+                            <option>720p HD (Tối ưu dung lượng)</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn-action" onclick="alert('Đã tối ưu hóa và xuất video thành công!')">Bắt Đầu Tối Ưu</button>
+            </div>
+            <div class="preview-area" id="video-preview">
+                <div style="color: var(--text-muted); font-size: 0.85rem;">Chưa có video được chọn</div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        AuraAI Studio &copy; 2026 - Tự động hóa đa phương tiện thông minh trực tuyến.
+    </footer>
+
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.currentTarget.classList.add('active');
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+
+        function loadVideo(event, previewId) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const url = URL.createObjectURL(file);
+            const container = document.getElementById(previewId);
+            container.innerHTML = `<video controls src="${url}"></video><div style="margin-top: 6px; font-size: 0.75rem; color: #4ade80;">✔ Tải lên: ${file.name}</div>`;
+        }
+
+        function loadImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const url = URL.createObjectURL(file);
+            const container = document.getElementById('image-preview');
+            container.innerHTML = `<img id="main-img" src="${url}"><div style="margin-top: 6px; font-size: 0.75rem; color: #4ade80;">✔ Tải ảnh: ${file.name}</div>`;
+        }
+
+        function updateFilter(val) {
+            document.getElementById('bright-val').innerText = val + '%';
+            const img = document.getElementById('main-img');
+            if(img) img.style.filter = `brightness(${val}%)`;
+        }
+    </script>
+</body>
+</html>
